@@ -16,7 +16,6 @@ def scrape():
     # NASA Mars News
     url = 'https://mars.nasa.gov/news/'
     browser.visit(url)
-    time.sleep(10)
     html = browser.html
     soup = BeautifulSoup(html, 'html.parser')
     news_title = soup.find_all('div', class_='content_title')[1].text
@@ -25,7 +24,6 @@ def scrape():
     # JPL Featured Images
     img_url =  'https://www.jpl.nasa.gov/spaceimages/?search=&category=Mars'
     browser.visit(img_url)
-    time.sleep(10)
     html = browser.html
     soup = BeautifulSoup(html, 'html.parser')
     # img_link = soup.find('article', class_='carousel_item')
@@ -61,13 +59,23 @@ def scrape():
     soup = BeautifulSoup(html, "html.parser")
 
     hemisphere_image_urls = []
+    enhanced_url_list = []
 
     hemi_all = soup.find_all('div', class_='item')
+    # print(hemi_all)
     for hemi_idv in hemi_all:
         title = hemi_idv.find('h3').text
-        hemi_url = hemi_idv.find('img', class_='thumb')['src']
-        full_url = f'https://astrogeology.usgs.gov{hemi_url}'
-        hemisphere_image_urls.append({"title": title, "img_url": full_url})
+        enhanced_url = hemi_idv.a['href']
+        enhanced_url = f'https://astrogeology.usgs.gov{enhanced_url}'
+        enhanced_url_list.append(enhanced_url)
+        
+    for each_enhanced_url in enhanced_url_list:
+        
+        browser.visit(each_enhanced_url)
+        html = browser.html
+        soup = BeautifulSoup(html, "html.parser")
+        org_hemi_url = soup.find('div', class_='downloads').a['href']
+        hemisphere_image_urls.append({"title": title, "img_url": org_hemi_url})
 
 
     scrape_data = {'news_title' : news_title,
